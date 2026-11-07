@@ -6,6 +6,7 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Modern hardware-accelerated Windows screen and window video capture core engine by SINARY™"
+readme = "README.md"
 keywords = ["windows", "video", "screen-capture", "wgc", "directx"]
 categories = ["multimedia::video", "os::windows-apis"]
 
