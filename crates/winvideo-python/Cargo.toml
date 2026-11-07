@@ -1,0 +1,17 @@
+[package]
+name = "winvideo-python"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Python bindings for WinVideo by SINARY™"
+
+[lib]
+name = "winvideo"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+winvideo-core = { path = "../winvideo-core" }
+pyo3 = { version = "0.22", features = ["extension-module"] }
+crossbeam-channel = "0.5"

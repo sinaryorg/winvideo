@@ -1,0 +1,55 @@
+[build-system]
+requires = ["maturin>=1.5,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "sinary-winvideo"
+version = "0.1.0"
+description = "Modern hardware-accelerated Windows screen and window video capture library by SINARY™"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT OR Apache-2.0" }
+authors = [
+    { name = "SINARY™" },
+]
+keywords = [
+    "windows",
+    "wgc",
+    "video",
+    "capture",
+    "screen-capture",
+    "directx",
+    "d3d11",
+    "recording",
+    "streaming",
+    "opencv",
+    "vision",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Multimedia :: Video :: Capture",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Homepage = "https://github.com/sinaryorg/winvideo"
+Repository = "https://github.com/sinaryorg/winvideo"
+Documentation = "https://github.com/sinaryorg/winvideo#readme"
+"Issue Tracker" = "https://github.com/sinaryorg/winvideo/issues"
+
+[tool.maturin]
+module-name = "winvideo"
+manifest-path = "Cargo.toml"

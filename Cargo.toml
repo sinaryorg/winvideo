@@ -1,0 +1,15 @@
+[workspace]
+members = [
+    "crates/winvideo-core",
+    "crates/winvideo-cli",
+    "crates/winvideo-python",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["SINARY™"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/sinaryorg/winvideo"
+description = "Modern hardware-accelerated Windows screen and window video capture library by SINARY™"

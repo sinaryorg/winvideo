@@ -1,0 +1,31 @@
+# Rust build artifacts
+target/
+**/*.rs.bk
+Cargo.lock
+
+# Python / Maturin artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+.venv/
+env/
+dist/
+build/
+wheels/
+*.egg-info/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# WinVideo test outputs
+*.mp4
+*.mkv
+*.png
+*.jpg
+*.jpeg
+test_output/
