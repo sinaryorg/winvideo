@@ -1,4 +1,4 @@
-#![allow(clippy::useless_conversion)]
+#![allow(clippy::useless_conversion, clippy::too_many_arguments)]
 
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
@@ -236,6 +236,25 @@ impl PyCapture {
         Ok(())
     }
 
+    /// Stream frames continuously as zero-copy NumPy arrays.
+    #[pyo3(signature = (timeout_ms=100))]
+    pub fn stream(slf: Py<Self>, py: Python<'_>, timeout_ms: u64) -> PyResult<PyFrameStream> {
+        {
+            let mut cap = slf.borrow_mut(py);
+            if cap.stream.is_none() {
+                cap.start()?;
+            }
+        }
+        Ok(PyFrameStream {
+            capture: slf,
+            timeout_ms,
+        })
+    }
+
+    fn __iter__(slf: Py<Self>, py: Python<'_>) -> PyResult<PyFrameStream> {
+        Self::stream(slf, py, 100)
+    }
+
     /// Stops the capture stream.
     pub fn stop(&mut self) {
         if let Some(mut s) = self.stream.take() {
@@ -260,6 +279,31 @@ impl PyCapture {
     }
 }
 
+/// An iterator yielding live video frames as NumPy arrays.
+#[pyclass(name = "FrameStream")]
+pub struct PyFrameStream {
+    capture: Py<PyCapture>,
+    timeout_ms: u64,
+}
+
+#[pymethods]
+impl PyFrameStream {
+    fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
+        slf
+    }
+
+    fn __next__<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyAny>>> {
+        let mut cap = self.capture.borrow_mut(py);
+        match cap.read_frame(self.timeout_ms)? {
+            Some(frame) => {
+                let np_arr = frame.to_numpy(py)?;
+                Ok(Some(np_arr))
+            }
+            None => Ok(None),
+        }
+    }
+}
+
 /// Enumerate all capturable application windows.
 #[pyfunction]
 pub fn list_windows() -> PyResult<Vec<PyWindowInfo>> {
@@ -278,9 +322,10 @@ pub fn list_monitors() -> PyResult<Vec<PyMonitorInfo>> {
 
 /// Capture an instant lossless screenshot to PNG, JPG, or BMP.
 #[pyfunction]
-#[pyo3(signature = (path, name=None, pid=None, window=None, monitor=None))]
+#[pyo3(signature = (path="screenshot.png", out=None, name=None, pid=None, window=None, monitor=None))]
 pub fn screenshot(
     path: &str,
+    out: Option<String>,
     name: Option<String>,
     pid: Option<u32>,
     window: Option<String>,
@@ -298,7 +343,50 @@ pub fn screenshot(
         Target::PrimaryMonitor
     };
 
-    capture_screenshot(&target, path).map_err(|e| PyRuntimeError::new_err(e.to_string()))
+    let target_path = out.as_deref().unwrap_or(path);
+    capture_screenshot(&target, target_path).map_err(|e| PyRuntimeError::new_err(e.to_string()))
+}
+
+/// Record application window or display monitor directly to an MP4 video file.
+#[pyfunction]
+#[pyo3(signature = (out="recorded_video.mp4", name=None, pid=None, window=None, monitor=None, duration=None, fps=60, cursor=true, border=false))]
+pub fn record(
+    out: &str,
+    name: Option<String>,
+    pid: Option<u32>,
+    window: Option<String>,
+    monitor: Option<usize>,
+    duration: Option<f64>,
+    fps: u32,
+    cursor: bool,
+    border: bool,
+) -> PyResult<()> {
+    let target = if let Some(n) = name {
+        Target::ByName(n)
+    } else if let Some(p) = pid {
+        Target::ByPid(p)
+    } else if let Some(w) = window {
+        Target::ByWindow(w)
+    } else if let Some(m) = monitor {
+        Target::ByMonitor(m)
+    } else {
+        Target::PrimaryMonitor
+    };
+
+    let config = CaptureConfig {
+        fps,
+        cursor,
+        draw_border: border,
+        color_format: ColorFormat::Bgra8,
+    };
+
+    let max_dur = duration.map(Duration::from_secs_f64);
+    let stop_signal = Arc::new(AtomicBool::new(false));
+
+    record_to_mp4::<_, fn(u64, f64)>(&target, out, max_dur, &config, stop_signal, None)
+        .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+
+    Ok(())
 }
 
 /// Version of WinVideo.
@@ -313,10 +401,12 @@ fn winvideo(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(list_windows, m)?)?;
     m.add_function(wrap_pyfunction!(list_monitors, m)?)?;
     m.add_function(wrap_pyfunction!(screenshot, m)?)?;
+    m.add_function(wrap_pyfunction!(record, m)?)?;
     m.add_function(wrap_pyfunction!(version, m)?)?;
     m.add_class::<PyWindowInfo>()?;
     m.add_class::<PyMonitorInfo>()?;
     m.add_class::<PyVideoFrame>()?;
     m.add_class::<PyCapture>()?;
+    m.add_class::<PyFrameStream>()?;
     Ok(())
 }

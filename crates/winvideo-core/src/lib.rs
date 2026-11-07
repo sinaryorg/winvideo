@@ -21,7 +21,8 @@ pub mod target;
 
 // Re-exports for convenience
 pub use capture::{
-    capture_screenshot, record_to_mp4, CaptureConfig, LiveCaptureStream, RecordStats, VideoFrame,
+    capture_screenshot, record_mp4, record_to_mp4, CaptureConfig, LiveCaptureStream, RecordStats,
+    VideoFrame,
 };
 pub use discovery::{list_monitors, list_windows, MonitorInfo, WindowInfo};
 pub use errors::WinVideoError;

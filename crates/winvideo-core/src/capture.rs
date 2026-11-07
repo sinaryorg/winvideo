@@ -376,6 +376,17 @@ where
     })
 }
 
+/// Convenience function to record to an MP4 video file without a progress callback.
+pub fn record_mp4<P: AsRef<Path>>(
+    target: &Target,
+    output_path: P,
+    duration: Option<Duration>,
+    config: &CaptureConfig,
+    stop_signal: Arc<AtomicBool>,
+) -> Result<RecordStats, WinVideoError> {
+    record_to_mp4::<P, fn(u64, f64)>(target, output_path, duration, config, stop_signal, None)
+}
+
 /// A live streaming capture handle that yields raw frames.
 pub struct LiveCaptureStream {
     receiver: Receiver<VideoFrame>,

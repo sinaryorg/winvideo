@@ -38,12 +38,12 @@ def main():
     # print("Saved to chrome_record.mp4 (Note: for audio, record concurrently with winaudio)")
 
     # Example 3: Stream frames into OpenCV / NumPy
-    # print("\n--- Streaming Frames ---")
-    # with winvideo.Capture(name="chrome.exe", fps=60) as cap:
-    #     for i in range(10):
-    #         frame = cap.read_frame(timeout_ms=100)
-    #         if frame:
-    #             print(f"Captured frame #{i+1}: {frame.width}x{frame.height} ({len(frame.to_bytes())} bytes)")
+    # print("\n--- Streaming Frames directly as NumPy Arrays ---")
+    # with winvideo.Capture(fps=60) as cap:
+    #     for i, frame in enumerate(cap.stream()):
+    #         print(f"Captured frame #{i+1}: shape={frame.shape}, dtype={frame.dtype}")
+    #         if i >= 5:
+    #             break
 
     # Example 4: Concurrent Audio + Video Recording with WinAudio
     # import threading

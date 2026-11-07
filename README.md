@@ -232,7 +232,7 @@ winvideo-core = "0.1.0"
 
 ```rust
 use std::time::Duration;
-use winvideo_core::{capture_screenshot, record_to_mp4, list_windows, CaptureConfig, Target};
+use winvideo_core::{capture_screenshot, list_windows, record_mp4, CaptureConfig, Target};
 
 fn main() -> anyhow::Result<()> {
     // 1. List capturable application windows
@@ -248,13 +248,12 @@ fn main() -> anyhow::Result<()> {
     let config = CaptureConfig::default();
     let stop_signal = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
 
-    record_to_mp4(
+    record_mp4(
         &Target::ByName("Spotify.exe".into()),
         "spotify.mp4",
         Some(Duration::from_secs(10)),
         &config,
         stop_signal,
-        None,
     )?;
 
     println!("MP4 recording complete!");
